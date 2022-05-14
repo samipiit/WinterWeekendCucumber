@@ -5,6 +5,7 @@ import app.pom.Homepage;
 import app.pom.Login;
 import app.pom.MyAccount;
 import base.BasePage;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.GenerateData;
 
 import java.time.Duration;
+import java.util.List;
 
 public class AuthenticationStepDefinitions extends BasePage {
 
@@ -58,9 +60,49 @@ public class AuthenticationStepDefinitions extends BasePage {
                 GenerateData.zipCode(), GenerateData.mobilePhone());
     }
 
+    @And("^user enters \"(.*)\" in the Already Registered Email Address input field")
+    public void user_enters_email_address_in_the_already_registered_email_address_input_field(String email) {
+        login.inputRegisteredEmailAddress(email);
+    }
+
+    @And("^user enters \"(.*)\" in the Password input field")
+    public void user_enters_password_in_the_password_input_field(String password) {
+        login.inputPassword(password);
+    }
+
+    @And("user clicks the submit Sign In button")
+    public void user_clicks_the_submit_sign_in_button() {
+        login.clickSignInButton();
+    }
+
     @Then("user is navigated to My Account page")
     public void user_is_navigated_to_My_Account_page() {
         Assert.assertTrue(myAccount.isSignedIn());
     }
 
+    @Then("invalid email error message should be displayed")
+    public void invalid_email_error_message_should_be_displayed() {
+        Assert.assertTrue(isElementVisible(login.errorMessageBanner));
+        Assert.assertEquals("Invalid email address.", getTrimmedElementText(login.errorMessageText));
+    }
+
+    @Then("authentication error message should be displayed")
+    public void authentication_error_message_should_be_displayed() {
+        Assert.assertTrue(isElementVisible(login.errorMessageBanner));
+        Assert.assertEquals("Authentication failed.", getTrimmedElementText(login.errorMessageText));
+    }
+
+    @Then("^user should see \"(.*)\" authentication results")
+    public void user_should_see_expected_authentication_results(String expected) {
+        if (expected.equalsIgnoreCase("auth")) {
+            Assert.assertTrue(myAccount.isSignedIn());
+        } else if (expected.contains("invalid")) {
+            Assert.assertTrue(isElementVisible(login.errorMessageBanner));
+            if (expected.contains("email")) {
+                Assert.assertEquals("Invalid email address.", getTrimmedElementText(login.errorMessageText));
+            } else if (expected.contains("auth")) {
+                Assert.assertEquals("Authentication failed.", getTrimmedElementText(login.errorMessageText));
+            }
+        }
+    }
 }

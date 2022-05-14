@@ -92,6 +92,10 @@ public class BasePage {
         select.selectByValue(value);
     }
 
+    public void uploadFile(WebElement element, String absFilePath) {
+        element.sendKeys(absFilePath);
+    }
+
     public boolean isElementVisible(WebElement element) {
         try {
             webDriverWait.until(ExpectedConditions.visibilityOf(element));
